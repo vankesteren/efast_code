@@ -20,6 +20,10 @@ volume <-
   set_names(str_replace_all(colnames(.), "-", "_")) # preprocess names
 roi_names <- c(unique(str_extract_all(colnames(volume), "(?<=_).*", TRUE)))
 
+# plot the covmat
+pdf("empirical_examples/plots/camcan_volume_cplot.pdf", 7, 7)
+cplot(cor(volume), cl.pos = "r")
+dev.off()
 
 
 #####################################
@@ -175,7 +179,9 @@ ggseg(dkt_li, mapping = aes(fill = est),
   scale_fill_viridis_c() +
   theme_fira() +
   theme(line = element_blank(),
-        axis.text.y = element_blank()) +
+        axis.text.y = element_blank(), 
+        axis.line = element_blank(),
+        panel.grid.major = element_blank()) +
   labs(x = "", y = "",
        fill  = "Lateralization")
 

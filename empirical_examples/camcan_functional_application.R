@@ -19,8 +19,8 @@ ssize <- 261 # sample size
 ccfun <- clist[[1]]
 
 # plot the covmat
-pdf("empirical_examples/plots/camcan_fun_cplot.pdf", 3, 3)
-cplot(cor(ccfun))
+pdf("empirical_examples/plots/camcan_fun_cplot.pdf", 7, 7)
+cplot(cor(ccfun), cl.pos = "r")
 dev.off()
 
 # set area names
@@ -179,9 +179,8 @@ li %>%
   mutate(
     roi = region %>% str_replace_all("_", "") %>% str_pad(2, "left", "0")
   ) %>% 
-  ggplot(aes(x = roi, y = est, ymax = ci.upper, ymin = ci.lower)) + 
+  ggplot(aes(x = as_factor(roi), y = est, ymax = ci.upper, ymin = ci.lower)) + 
   geom_pointrange() + 
-  ylim(0, 1) +
   theme_fira() + 
   coord_flip() +
   labs(x = "", y = "Lateralization index")

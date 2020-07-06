@@ -1,6 +1,6 @@
 # Data simulation for EFAST models
 # Erik-Jan van Kesteren
-# Last edited: 20200428
+# Last edited: 20200630
 
 library(efast)
 library(tidyverse)
@@ -23,6 +23,7 @@ fit <- fit_models(dat)
 
 # Create a condition grid
 grid <- expand.grid(
+  N       = c(650, 130, 65),
   lambda  = c(0.5, 0.7),    # bil traits get this, lat traits this*0.85
   psi_cov = c(0, 0.5),      # covariance among latent variables
   res_cor = c(0, 0.2, 0.4)
@@ -54,6 +55,7 @@ for (i in 1:nrow(grid)) {
   clusterExport(clus, "arg")
   output <- pblapply(1:nrep, function(r) {
     dat <- simulate_efast(
+      N        = arg$N,
       lam_lat  = arg$lambda*0.85, 
       lam_bil  = arg$lambda,
       psi_cov  = arg$psi_cov,

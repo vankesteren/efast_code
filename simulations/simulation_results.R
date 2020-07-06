@@ -1,6 +1,6 @@
 # Process the results of the simulation
 # Erik-Jan van Kesteren
-# Last edited: 20200430
+# Last edited: 20200630
 library(efast)
 library(tidyverse)
 library(firatheme)
@@ -133,7 +133,7 @@ pd <- position_dodge(width = 0.05)
 # convergence
 conv_plot <- 
   tbl %>% 
-  filter(lambda == 0.5) %>% 
+  filter(lambda == 0.5, N == 650) %>% 
   mutate(se_prop = sqrt(prop_convergence * (1 - prop_convergence)) / 120,
          upper = ub_convergence, lower = lb_convergence) %>% 
   ggplot(aes(x = res_cor, y = prop_convergence, colour = model, ymin = lower, 
@@ -158,10 +158,44 @@ conv_plot <-
 firaSave("simulations/plots/conv_plot.pdf", plot = conv_plot, width = 9, 
          height = 6)
 
+# convergence by N
+conv_plot_n <- 
+  tbl %>% 
+  filter(psi_cov == 0.5) %>% 
+  mutate(se_prop = sqrt(prop_convergence * (1 - prop_convergence)) / 120,
+         upper = ub_convergence, lower = lb_convergence) %>% 
+  ggplot(aes(x = res_cor, y = prop_convergence, colour = model, ymin = lower, 
+             ymax = upper)) +
+  geom_line(size = 1, position = pd) +
+  geom_point(size = 2.5, position = pd) +
+  geom_errorbar(width = 0.05, size = 1, position = pd) +
+  theme_fira() +
+  theme(panel.border = element_rect(fill = NA, colour = "#343434")) +
+  scale_colour_fira() +
+  ylim(0, 1) +
+  labs(
+    title = "Model convergence",
+    subtitle = "Latent covariance = 0.5",
+    x = "Contralateral homology correlation", 
+    y = "Convergence proportion", 
+    colour = "Model type"
+  ) +
+  facet_grid(
+    as_factor(lambda) %>% 
+      fct_recode("Loadings = 0.5" = "0.5", "Loadings = 0.7" = "0.7") 
+    ~ 
+    as_factor(N) %>% 
+      fct_recode("N = 650" = "650", "N = 130" = "130", "N = 65" = "65") %>% 
+      fct_rev()
+  )
+
+firaSave("simulations/plots/conv_plot_n.pdf", plot = conv_plot_n, width = 9, 
+         height = 6)
+
 # bic
 BIC_plot <- 
   tbl %>% 
-  filter(lambda == 0.5) %>% 
+  filter(lambda == 0.5, N == 650) %>% 
   mutate(upper = mean_BIC + 1.96*se_BIC,
          lower = mean_BIC - 1.96*se_BIC) %>% 
   ggplot(aes(x = res_cor, y = mean_BIC, colour = model, ymin = lower, 
@@ -189,7 +223,7 @@ firaSave("simulations/plots/BIC_plot.pdf", plot = BIC_plot, width = 9,
 # aic
 AIC_plot <- 
   tbl %>% 
-  filter(lambda == 0.5) %>% 
+  filter(lambda == 0.5, N == 650) %>% 
   mutate(upper = mean_AIC + 1.96*se_AIC,
          lower = mean_AIC - 1.96*se_AIC) %>% 
   ggplot(aes(x = res_cor, y = mean_AIC, colour = model, ymin = lower, 
@@ -218,7 +252,7 @@ firaSave("simulations/plots/AIC_plot.pdf", plot = AIC_plot, width = 9,
 # covariance error
 psi_cov_plot <- 
   tbl %>% 
-  filter(psi_cov == 0.5) %>% 
+  filter(psi_cov == 0.5, N == 650) %>% 
   mutate(lower = mean_est_cov - 1.96*se_est_cov, 
          upper = mean_est_cov + 1.96*se_est_cov) %>% 
   ggplot(aes(x = res_cor, y = mean_est_cov, colour = model, ymin = lower, 
@@ -246,7 +280,7 @@ firaSave("simulations/plots/psi_cov_plot.pdf", plot = psi_cov_plot, width = 9,
 # Lambda mae
 mae_plot <- 
   tbl_facs %>% 
-  filter(lambda == 0.5, psi_cov == 0.5) %>% 
+  filter(lambda == 0.5, psi_cov == 0.5, N == 650) %>% 
   mutate(upper = mean_mae + 1.96*se_mae,
          lower = mean_mae - 1.96*se_mae) %>% 
   ggplot(aes(x = res_cor, y = mean_mae, colour = model, 
@@ -279,6 +313,7 @@ firaSave("simulations/plots/mae_plot.pdf", plot = mae_plot, width = 9,
 
 mae_plot_full <- 
   tbl_facs %>% 
+  filter(N == 650) %>% 
   mutate(upper = mean_mae + 1.96*se_mae,
          lower = mean_mae - 1.96*se_mae) %>% 
   ggplot(aes(x = res_cor, y = mean_mae, colour = model, 
@@ -308,3 +343,37 @@ mae_plot_full <-
 
 firaSave("simulations/plots/mae_plot_full.pdf", plot = mae_plot_full,
          width = 10, height = 12)
+
+
+mae_plot_sample <- 
+  tbl_facs %>% 
+  filter(lambda == 0.7, psi_cov == 0.5) %>% 
+  mutate(upper = mean_mae + 1.96*se_mae,
+         lower = mean_mae - 1.96*se_mae) %>% 
+  ggplot(aes(x = res_cor, y = mean_mae, colour = model, 
+             ymin = lower, ymax = upper)) +
+  geom_line(size = 1, position = pd) +
+  geom_point(size = 2.5, position = pd) +
+  geom_errorbar(width = 0.05, size = 1, position = pd) +
+  facet_grid(as_factor(paste("N = ", N)) ~
+               factor %>% fct_recode(
+                 "Bilateral Factor 1" = "F1",
+                 "Bilateral Factor 2" = "F2",
+                 "Bilateral Factor 3" = "F3",
+                 "Lateral Factor"     = "LH"
+               )
+  ) +
+  theme_fira() +
+  theme(panel.border = element_rect(fill = NA, colour = "#343434"), 
+        legend.position = "top") +
+  scale_colour_fira() +
+  labs(
+    title = "Estimation error of factor loadings",
+    subtitle = "Loadings = 0.7, covariance = 0.5",
+    x = "Contralateral homology correlation", 
+    y = "Mean absolute error", 
+    colour = "Model type"
+  )
+
+firaSave("simulations/plots/mae_plot_sample.pdf", plot = mae_plot_sample,
+         width = 10, height = 9)

@@ -18,8 +18,8 @@ ccwm <- read_rds("empirical_examples/data/camcan_wm.rds")
 
 
 # plot the covmat
-pdf("empirical_examples/plots/camcan_wm_cplot.pdf", 3, 3)
-cplot(cor(ccwm))
+pdf("empirical_examples/plots/camcan_wm_cplot.pdf", 4, 4)
+cplot(cor(ccwm), cl.pos = "r")
 dev.off()
 
 # extract area names
@@ -154,12 +154,12 @@ res_efast <-
 srmr_efa   <- sqrt(res_efa^2)
 srmr_efast <- sqrt(res_efast^2)
 
-pdf("empirical_examples/plots/camcan_wm_obs_imp.pdf", width = 6, height = 3)
+pdf("empirical_examples/plots/camcan_wm_obs_imp.pdf", width = 8, height = 4)
 par(mfrow = c(1, 2))
 cplot(srmr_efa, mar = c(0, 0, 1, 0), main = "EFA", 
-      cl.lim = range(c(srmr_efa, srmr_efast)))
+      cl.lim = range(c(srmr_efa, srmr_efast)), cl.pos = "r", cex = 0.5)
 cplot(srmr_efast, mar = c(0, 0, 1, 0), main = "EFAST", 
-      cl.lim = range(c(srmr_efa, srmr_efast)))
+      cl.lim = range(c(srmr_efa, srmr_efast)), cl.pos = "r", cex = 0.5)
 dev.off()
 
 
@@ -177,7 +177,6 @@ li %>%
   ggplot(aes(x = str_replace_all(region, "_", " "), y = est, 
              ymax = ci.upper, ymin = ci.lower)) + 
   geom_pointrange() + 
-  ylim(0, 1) +
   theme_fira() + 
   coord_flip() +
   labs(x = "", y = "Lateralization index")
